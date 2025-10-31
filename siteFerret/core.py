@@ -76,6 +76,7 @@ class NS_clustering(object):
         self.ra = None
         #Careful, setting of global variables must have happened before object initialization
         self.pdbFolder_path = global_module.pdbFolder_path
+        self.output_dir = global_module.save_path
         self.workingDir = global_module.runFolder_path
         self.filteredP = []
         return
@@ -87,7 +88,7 @@ class NS_clustering(object):
         """
         err = Error()
         self.pFilename = structure_name
-        self.save_path = self.pdbFolder_path+structure_name+"_Pfiles"
+        self.save_path = self.output_dir+structure_name+"_Pfiles"
         self.read_path = self.pdbFolder_path+structure_name+'.pqr'
         self.log_path = self.workingDir+"status.txt"
         
@@ -135,8 +136,8 @@ class NS_clustering(object):
         except subprocess.CalledProcessError as grepexc:                                                                                                   
             print ("error code", grepexc.returncode, grepexc.output)
             return 1
-        subprocess.run(['mv',self.workingDir+"triangulatedSurf.face",self.pdbFolder_path+self.pFilename+'.face'])
-        subprocess.run(['mv',self.workingDir+"triangulatedSurf.vert",self.pdbFolder_path+self.pFilename+'.vert'])
+        subprocess.run(['mv',self.workingDir+"triangulatedSurf.face",self.output_dir+self.pFilename+'.face'])
+        subprocess.run(['mv',self.workingDir+"triangulatedSurf.vert",self.output_dir+self.pFilename+'.vert'])
         
         return 0
 
@@ -621,7 +622,7 @@ class NS_clustering(object):
         #Drop later any sorting, just for debugging..
         # self.filteredP=sorted(self.filteredP, key = lambda x: x['node'].count)[::-1] #useless
         
-        resultFile=open(self.pdbFolder_path+"/"+"output_"+self.pFilename+".txt",'w')
+        resultFile=open(self.output_dir+"/"+"output_"+self.pFilename+".txt",'w')
         resultFile.write("%d CANDIDATE POCKETS FOUND FOR "%(len(self.filteredP))+self.pFilename+" **  \n")
         resultFile.write("**RANKED POCKETS**")
         
