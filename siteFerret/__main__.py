@@ -25,7 +25,7 @@ amino = {'ALA','ARG','ASN','ASP','CYS','GLN','GLU','GLY','HIS','HID','HIE','HIP'
 rankingThreshold = default_rankingThreshold
 keep = default_keep
 try:
-    opts, args = getopt.getopt(argv,"h",["range=","maxScore=","help"])
+    opts, args = getopt.getopt(argv,"h",["range=","maxScore=","help","output_dir="])
 except getopt.GetoptError:
     print ('<<ERROR>> Uncorrect formatting of options or unavaible option')
     sys.exit(2)
@@ -43,29 +43,38 @@ for opt, arg in opts:
     elif opt == '--maxScore':
         rankingThreshold = float(arg)
         print("OPTION: max score Isolation Forest= %.2f"%rankingThreshold)
+    elif opt == '--output_dir':
+        print("OPTION: output directory= %s"%arg)
+        output_dir = arg
+        print("OPTION: output directory= %s"%output_dir)
 
 if not args:
     exit("Please provide structure name")
 else:
     pass
+
+os.makedirs(output_dir, exist_ok=True)
+
 # INITIALIZATIONS #
 ### Create temp folder (if not existing)###
-runPath = 'temp'
+
+runPath = os.path.join(output_dir, 'temp')
 if not os.path.exists(runPath):
     os.makedirs(runPath)
 
 subprocess.call('cp '+global_module.pathTo_NS_ex+'* '+runPath+"/", shell=True)
 
 inputFile  = args[0] 
-match = re.match('([\w]*)',inputFile) #accepts both <pqrname> and <pqrname.pqr>
-inputFile = match.group(1)
+# match = re.match('([\w]*)',inputFile) #accepts both <pqrname> and <pqrname.pqr>
+# inputFile = match.group(1)
 
-proteinFile=inputFile
+# proteinFile=inputFile
+proteinFile = os.path.basename(inputFile).split('.')[0]
 
-errFile = open("errorLog.txt",'w+')
+errFile = open(os.path.join(output_dir, "errorLog.txt"),'w+')
 errFile.write("## ERROR LOG FILE ##\n")
 
-logFile = open("logFile.txt", 'w')
+logFile = open(os.path.join(output_dir, "logFile.txt"), 'w')
 logFile.write("******************************** LOGFILE ********************************** \n")
 
 print()
@@ -93,7 +102,14 @@ err.handle(errFile)
 gamma = config.gamma
 beta = config.beta
 rp_max = config.rp_max
-err=initFolders(inputFile)
+
+input_dir = os.path.dirname(inputFile)
+
+print("Input directory: ", input_dir)
+print("Input file: ", inputFile)
+
+err=initFolders(proteinFile, input_dir, runPath, output_dir)
+# err=initFolders(proteinFile, output_dir, runPath)
 err.handle(errFile)
 
 

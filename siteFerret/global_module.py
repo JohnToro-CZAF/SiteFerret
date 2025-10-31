@@ -71,33 +71,23 @@ else:
 
 
 ### ACCESSORY FUNCTIONS ##
-def initFolders(pdbName=None,structureFolder=None):
+def initFolders(pdbName, structureFolder, runFolder, output_dir):
+    """
+    Initialize the folders for the run.
+    Args:
+        pdbName: The name of the pdb file.
+        structureFolder: The folder containing the pdb files.
+        runFolder: The folder where to store the temporary files. E.g output_dir/temp.
+    """
     
     global pdbFolder_path
     global runFolder_path
     global save_path
-    if structureFolder != None:
-        print("<WARNING> Overwriting default structures folder name..")
-        default_pdbFolderName = structureFolder.replace('/','')
-        print(default_pdbFolderName+'\n')
-
-    else:
-        default_pdbFolderName = "structures"
-    default_runFolderName = "temp"
+    
     err = Error()
-    here = os.path.abspath(".")+'/'
-    isFolder = os.path.isdir(here+default_runFolderName)
-    if(not isFolder):
-        try:
-            raise FileNotFoundError
-        except FileNotFoundError as info:
-            print("\n ** Did not find folder where to store temp files \'temp\' ")
-            err.info = str(type(info)) + "Cannot find folder where to store temp files"
-            err.value = 2
-            return err
-    else:
-        runFolder_path = os.path.abspath(default_runFolderName)+'/'
-
+    runFolder_path = os.path.abspath(runFolder) + "/"
+    print("Run folder path: ", runFolder_path)
+    
     ###CHECK MAIN NS FILES ARE PRESENT 
     isFile = os.path.isfile(runFolder_path+conf)
     if(not isFile):
@@ -105,48 +95,22 @@ def initFolders(pdbName=None,structureFolder=None):
             raise FileNotFoundError
         except FileNotFoundError as info:
             print("\n**Did not find NanoShaper configuration file: 'surfaceConfigurattion.prm' ")
-            err.info = str(type(info)) + "Did not find NanoShaper configuration file:'surfaceConfigurattion.prm' "
+            err.info = str(type(info)) + f"Did not find NanoShaper configuration file:'surfaceConfigurattion.prm' {runFolder_path}surfaceConfigurattion.prm"
             err.value = 2
             return err
+    
     isFile = os.path.isfile(runFolder_path+"NanoShaper")
     if(not isFile):
         try:
             raise FileNotFoundError
         except FileNotFoundError as info:
-            print("\n**Did not find NanoShaper executable ")
-            err.info = str(type(info)) + "Did not find NanoShaper executable "
+            print(f"\n**Did not find NanoShaper executable {runFolder_path}NanoShaper")
+            err.info = str(type(info)) + f"Did not find NanoShaper executable {runFolder_path}NanoShaper"
             err.value = 2
             return err
-    
 
-    ##
-    isFolder = os.path.isdir(here+default_pdbFolderName)
-    if(not isFolder):
-        try:
-            raise FileNotFoundError
-        except FileNotFoundError as info:
-            # print("Did not find folder containing structures to analyse. Setting working directory.")
-            err.info = str(type(info)) + "Cannot find folder containing structures. Setting working directory."
-            print("<WARNING> \"structures\" folder not found. Setting working directory.")
-            err.value = 1
-        pdbFolder_path = here
-    else:
-        pdbFolder_path = os.path.abspath(default_pdbFolderName)+'/'
-    # print(runFolder_path)
-    if(pdbName!=None):
-        isFile = os.path.isfile(pdbFolder_path+pdbName+".pqr")
-        if(not isFile):
-            isFile = os.path.isfile(here+pdbName+".pqr")
-            pdbFolder_path = here
-            if(not isFile):
-                try:
-                    raise FileNotFoundError
-                except FileNotFoundError as info:
-                    print("\n** Did not find pqr file. CAREFUL: if structure folder is provided, the file must be there.")
-                    err.info = str(type(info)) + "Did not find pqr file  "
-                    err.value = 2
-                    return err
-    save_path = pdbFolder_path
+    pdbFolder_path = os.path.abspath(structureFolder)+'/'
+    save_path = os.path.abspath(output_dir) + "/"
     return err
 
 
